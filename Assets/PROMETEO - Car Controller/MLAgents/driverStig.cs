@@ -4,37 +4,37 @@ using UnityEngine.PlayerLoop;
 using Unity.MLAgents.Actuators;
 using System;
 using Unity.MLAgents.Sensors;
+using Unity.MLAgents.Policies;
+using Unity.VisualScripting;
 public class driverStig : Agent
 {
     private PrometeoCarController carController;
     Vector3 StartPos;
+    Quaternion StartRotation;
+
     GameObject[] OGcones;
+    GameObject[] checkPoints;
 
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         var discreteActions = actionsOut.DiscreteActions;
-        Debug.Log("Heuristic called");
 
-        // Action[0] = forward/reverse
         if (Input.GetKey(KeyCode.W))
-            discreteActions[0] = 1;   // GoForward
+            discreteActions[0] = 1;
         else if (Input.GetKey(KeyCode.S))
-            discreteActions[0] = 2;   // GoReverse
+            discreteActions[0] = 2;
         else
-            discreteActions[0] = 0;   // no throttle
+            discreteActions[0] = 0;
 
-        // Action[1] = steering
         if (Input.GetKey(KeyCode.D))
-            discreteActions[1] = 1;   // TurnRight
+            discreteActions[1] = 1;
         else if (Input.GetKey(KeyCode.A))
-            discreteActions[1] = 2;   // TurnLeft
+            discreteActions[1] = 2;
         else
-            discreteActions[1] = 0;   // straight
+            discreteActions[1] = 0;
 
-        // Action[2] = throttle off
         discreteActions[2] = Input.GetKey(KeyCode.Space) ? 1 : 0;
 
-        // Action[3] = brakes
         discreteActions[3] = Input.GetKey(KeyCode.B) ? 1 : 0;
     }
 
@@ -45,19 +45,30 @@ public class driverStig : Agent
 
     public override void OnEpisodeBegin()
     {
-        Reset();
+        ResetAgent();
     }
 
     void Start()
     {
         StartPos = transform.position;
+        StartRotation = Quaternion.identity;
         OGcones = GameObject.FindGameObjectsWithTag("Cone");
-        Reset();
+        checkPoints = GameObject.FindGameObjectsWithTag("Goal");
+        //ResetAgent();
     }
 
-    void Reset()
+    void ResetAgent()
     {
+        //Debug.Log("Reset");
         transform.position = StartPos;
+        transform.rotation = StartRotation;
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
         ResetCones();
     }
 
@@ -104,28 +115,21 @@ public class driverStig : Agent
 
     }
 
-    // public override void CollectObservations(VectorSensor sensor)
-    // {
-    //     sensor.AddObservation(carController.carSpeed);
-    //     sensor.AddObservation(transform.forward);
-    //     sensor.AddObservation(transform.right);
-
-
-    //     RaycastHit hit;
-    //     if (Physics.Raycast(transform.position, transform.forward, out hit, 20f))
-    //     {
-    //         sensor.AddObservation(hit.distance / 20f);
-    //     }
-    //     else
-    //     {
-    //         sensor.AddObservation(1f);
-    //     }
-    // }
-
-    public void Update()
+    public override void CollectObservations(VectorSensor sensor)
     {
-        // Debug.Log(carController.carSpeed);
-        // Debug.Log(carController.isDrifting);
+        sensor.AddObservation(transform.forward.x);
+        sensor.AddObservation(transform.forward.y);
+        sensor.AddObservation(transform.forward.z);
+
+        sensor.AddObservation(distanceToNextCheckpoint(0));
+    }
+
+    float distanceToNextCheckpoint(int CHKPT)
+    {
+        float currentDistance = Vector3.Distance(transform.position, checkPoints[CHKPT].transform.position);
+        AddReward(-currentDistance * 0.0001f);
+        Debug.Log(-currentDistance * 0.0001f);
+        return currentDistance;
     }
 
     void OnCollisionEnter(Collision collision)
@@ -134,7 +138,7 @@ public class driverStig : Agent
         {
             AddReward(-1f);
             EndEpisode();
-            // Debug.Log("fail");
+            //Debug.Log("fail");
         }
     }
 
@@ -144,7 +148,7 @@ public class driverStig : Agent
         {
             AddReward(1f);
             EndEpisode();
-            // Debug.Log("win (trigger)");
+            //Debug.Log("win (trigger)");
         }
     }
 
