@@ -1,5 +1,5 @@
 /*
-MESSAGE FROM CREATOR: This script was coded by Mena. You can use it in your games either these are commercial or
+MESSAGE FROM CREATOR: This script was cocd by Mena. You can use it in your games either these are commercial or
 personal projects. You can even add or remove functions as you wish. However, you cannot sell copies of this
 script by itself, since it is originally distributed as a free product.
 I wish you the best for your project. Good luck!
@@ -137,12 +137,16 @@ public class PrometeoCarController : MonoBehaviour
       IMPORTANT: The following variables should not be modified manually since their values are automatically given via script.
       */
       Rigidbody carRigidbody; // Stores the car's rigidbody.
-      float steeringAxis; // Used to know whether the steering wheel has reached the maximum value. It goes from -1 to 1.
-      float throttleAxis; // Used to know whether the throttle has reached the maximum value. It goes from -1 to 1.
-      float driftingAxis;
+      [HideInInspector]
+      public float steeringAxis; // Used to know whether the steering wheel has reached the maximum value. It goes from -1 to 1.
+      [HideInInspector]
+      public float throttleAxis; // Used to know whether the throttle has reached the maximum value. It goes from -1 to 1.
+      [HideInInspector]
+      public float driftingAxis;
       float localVelocityZ;
       float localVelocityX;
-      bool deceleratingCar;
+      [HideInInspector]
+      public bool deceleratingCar;
       bool touchControlsSetup = false;
       /*
       The following variables are used to store information about sideways friction of the wheels (such as
@@ -325,45 +329,46 @@ public class PrometeoCarController : MonoBehaviour
           ResetSteeringAngle();
         }
 
-      }else{
+        }
+      // else{
 
-        if(Input.GetKey(KeyCode.W)){
-          CancelInvoke("DecelerateCar");
-          deceleratingCar = false;
-          GoForward();
-        }
-        if(Input.GetKey(KeyCode.S)){
-          CancelInvoke("DecelerateCar");
-          deceleratingCar = false;
-          GoReverse();
-        }
+      //   if(Input.GetKey(KeyCode.W)){
+      //     CancelInvoke("DecelerateCar");
+      //     deceleratingCar = false;
+      //     GoForward();
+      //   }
+      //   if(Input.GetKey(KeyCode.S)){
+      //     CancelInvoke("DecelerateCar");
+      //     deceleratingCar = false;
+      //     GoReverse();
+      //   }
 
-        if(Input.GetKey(KeyCode.A)){
-          TurnLeft();
-        }
-        if(Input.GetKey(KeyCode.D)){
-          TurnRight();
-        }
-        if(Input.GetKey(KeyCode.Space)){
-          CancelInvoke("DecelerateCar");
-          deceleratingCar = false;
-          Handbrake();
-        }
-        if(Input.GetKeyUp(KeyCode.Space)){
-          RecoverTraction();
-        }
-        if((!Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.W))){
-          ThrottleOff();
-        }
-        if((!Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.W)) && !Input.GetKey(KeyCode.Space) && !deceleratingCar){
-          InvokeRepeating("DecelerateCar", 0f, 0.1f);
-          deceleratingCar = true;
-        }
-        if(!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D) && steeringAxis != 0f){
-          ResetSteeringAngle();
-        }
+      //   if(Input.GetKey(KeyCode.A)){
+      //     TurnLeft();
+      //   }
+      //   if(Input.GetKey(KeyCode.D)){
+      //     TurnRight();
+      //   }
+      //   if(Input.GetKey(KeyCode.Space)){
+      //     CancelInvoke("DecelerateCar");
+      //     deceleratingCar = false;
+      //     Handbrake();
+      //   }
+      //   if(Input.GetKeyUp(KeyCode.Space)){
+      //     RecoverTraction();
+      //   }
+      //   if((!Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.W))){
+      //     ThrottleOff();
+      //   }
+      //   if((!Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.W)) && !Input.GetKey(KeyCode.Space) && !deceleratingCar){
+      //     InvokeRepeating("DecelerateCar", 0f, 0.1f);
+      //     deceleratingCar = true;
+      //   }
+      //   if(!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D) && steeringAxis != 0f){
+      //     ResetSteeringAngle();
+      //   }
 
-      }
+      // }
 
 
       // We call the method AnimateWheelMeshes() in order to match the wheel collider movements with the 3D meshes of the wheels.
