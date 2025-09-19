@@ -16,7 +16,7 @@ public class driverStig : Agent
     GameObject[] checkPoints;
 
     int currentCheckpoint = 0;
-    float maxDistanceToCheckpoint = 10f;
+    float maxDistanceToCheckpoint = 100f;
 
     public override void Heuristic(in ActionBuffers actionsOut)
     {
@@ -40,8 +40,8 @@ public class driverStig : Agent
 
         discreteActions[3] = Input.GetKey(KeyCode.B) ? 1 : 0;
 
-        Debug.Log("angular" + carController.carAngularVelocity);
-        Debug.Log("distance" + distanceToNextCheckpoint(currentCheckpoint));
+        //Debug.Log("angular" + carController.carAngularVelocity);
+        //Debug.Log("distance" + distanceToNextCheckpoint(currentCheckpoint));
     }
 
     public override void Initialize()
@@ -129,7 +129,7 @@ public class driverStig : Agent
         //3 obv
         sensor.AddObservation(carController.carVelocity / carController.maxSpeed);
         //3 obv
-        sensor.AddObservation(carController.carAngularVelocity / 10);
+        sensor.AddObservation(carController.carAngularVelocity / 5);
 
         //1 obv
         sensor.AddObservation(distanceToNextCheckpoint(currentCheckpoint) / maxDistanceToCheckpoint);
@@ -140,7 +140,7 @@ public class driverStig : Agent
     float distanceToNextCheckpoint(int CHKPT)
     {
         float currentDistance = Vector3.Distance(transform.position, checkPoints[CHKPT].transform.position);
-        Debug.Log(currentDistance);
+        //Debug.Log(currentDistance);
         return currentDistance;
     }
     Vector3 directionToNextCheckpoint(int CHKPT)
