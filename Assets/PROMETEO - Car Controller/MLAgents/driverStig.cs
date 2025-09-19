@@ -15,6 +15,9 @@ public class driverStig : Agent
     GameObject[] OGcones;
     GameObject[] checkPoints;
 
+    int currentCheckpoint = 0;
+    float maxDistanceToCheckpoint = 10f;
+
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         var discreteActions = actionsOut.DiscreteActions;
@@ -36,6 +39,9 @@ public class driverStig : Agent
         discreteActions[2] = Input.GetKey(KeyCode.Space) ? 1 : 0;
 
         discreteActions[3] = Input.GetKey(KeyCode.B) ? 1 : 0;
+
+        Debug.Log("angular" + carController.carAngularVelocity);
+        Debug.Log("distance" + distanceToNextCheckpoint(currentCheckpoint));
     }
 
     public override void Initialize()
@@ -89,6 +95,9 @@ public class driverStig : Agent
         if (carController.carSpeed < 0.1f)
             AddReward(-0.0005f);
 
+        float dist = distanceToNextCheckpoint(currentCheckpoint);
+        AddReward(-dist * 0.0001f);
+
         var action = actions.DiscreteActions;
 
         if (action[0] == 1)
@@ -117,19 +126,27 @@ public class driverStig : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        sensor.AddObservation(transform.forward.x);
-        sensor.AddObservation(transform.forward.y);
-        sensor.AddObservation(transform.forward.z);
+        //3 obv
+        sensor.AddObservation(carController.carVelocity / carController.maxSpeed);
+        //3 obv
+        sensor.AddObservation(carController.carAngularVelocity / 10);
 
-        sensor.AddObservation(distanceToNextCheckpoint(0));
+        //1 obv
+        sensor.AddObservation(distanceToNextCheckpoint(currentCheckpoint) / maxDistanceToCheckpoint);
+        //3 obv
+        sensor.AddObservation(directionToNextCheckpoint(currentCheckpoint).normalized);
     }
 
     float distanceToNextCheckpoint(int CHKPT)
     {
         float currentDistance = Vector3.Distance(transform.position, checkPoints[CHKPT].transform.position);
-        AddReward(-currentDistance * 0.0001f);
-        Debug.Log(-currentDistance * 0.0001f);
+        Debug.Log(currentDistance);
         return currentDistance;
+    }
+    Vector3 directionToNextCheckpoint(int CHKPT)
+    {
+        Vector3 checkpointDir = transform.InverseTransformPoint(checkPoints[CHKPT].transform.position);
+        return checkpointDir;
     }
 
     void OnCollisionEnter(Collision collision)
